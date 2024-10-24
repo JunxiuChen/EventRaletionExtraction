@@ -1,0 +1,2 @@
+{"relations": [{"one_event_id": "10631_1", "other_event_id": "10631_2", "relation_type": "时序"}]}
+{"relations": [{"one_event_id": "13815_1", "other_event_id": "13815_2", "relation_type": "因果"}, {"one_event_id": "13815_1", "other_event_id": "13815_4", "relation_type": "因果"}, {"one_event_id": "13815_1", "other_event_id": "13815_3", "relation_type": "因果"}]}
