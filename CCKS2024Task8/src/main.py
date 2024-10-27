@@ -1,6 +1,6 @@
 from zhipuai import ZhipuAI
 import json
-from src.utils import *
+from utils import *
 import time, random
 
 client = ZhipuAI(api_key="dff8037e8a7b540e96c62a80315c5462.spn2ArDpZQmSk5Zl")
