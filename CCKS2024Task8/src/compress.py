@@ -15,8 +15,10 @@ def invoke_example(prompt):
 
 # data_path = "../data/train.json"
 # save_file = "../output/compress_output/compress_1.json"
-data_path = "../data/testa.json"
-save_file = "../output/compress_output/compress_testa1.json"
+# data_path = "../data/testa.json"
+# save_file = "../output/compress_output/compress_testa1.json"
+data_path = "../data/testb.json"
+save_file = "../output/compress_output/compress_testb1.json"
 data = load_line_data(data_path)
 
 with tqdm(total=len(data)) as p:
