@@ -40,9 +40,10 @@ def get_trigger_sent_id(sentences, l, r):
 
 
 # event_type_id = {}
-event_type_id = load_line_data('maven_format_data/event_type_id_add_testa.json')[0]
+event_type_id = load_line_data('maven_format_data/event_type_id_add_testa_add_testb.json')[0]
 id_count = max(event_type_id.values())+1
 
+# ori_train_data = load_line_data("train.json")
 ori_train_data = load_line_data("补全测试集GT/有GT的测试数据/testa_with_gt.json")
 all_data = []
 for line in ori_train_data:
@@ -105,7 +106,6 @@ for line in ori_train_data:
     # start: 处理测试数据时请注释下面一段代码
     # line_dic["temporal_relations"] = {"时序": []}
     # line_dic["causal_relations"] = {"因果": []}
-    # line_dic["subevent_relations"] = []
     #
     # for relation_pair in line["relations"]:
     #     one_event_id = relation_pair["one_event_id"]
@@ -120,7 +120,6 @@ for line in ori_train_data:
     # start:将带有GT的testa.json作为验证集处理，解除以下代码注释
     line_dic["temporal_relations"] = {"时序": []}
     line_dic["causal_relations"] = {"因果": []}
-    line_dic["subevent_relations"] = []
 
     for relation_pair in line["relations"]:
         one_event_id = relation_pair["one_event"]["id"]
@@ -138,5 +137,5 @@ for line in ori_train_data:
 # add_response_to_json('maven_format_data/event_type_id_add_testa_add_testb.json', event_type_id)
 save_data_bylines(all_data, 'maven_format_data/valid.jsonl')  # 将testa作为验证集
 
-
+# save_data_bylines(all_data, 'maven_format_data/train.jsonl')
 
