@@ -182,17 +182,11 @@ class EvalResult:
 REL2ID={
 "temporal":{
     "NONE": 0,
-    "BEFORE": 1,
-    "OVERLAP": 2,
-    "CONTAINS": 3,
-    "SIMULTANEOUS": 4,
-    "ENDS-ON": 5,
-    "BEGINS-ON": 6,
+    "时序": 1
 },
 "causal":{
     "NONE": 0,
-    "PRECONDITION": 1,
-    "CAUSE": 2
+    "因果": 1
 },
 "subevent":{
     "NONE": 0,
@@ -330,15 +324,16 @@ if __name__ == "__main__":
 
     avg=[]
     ## Coreference
-    coreference_scores=evaluate_coreference(grouth_truth, prediction)
-    f1=0.0
-    for k in coreference_scores:
-        print(k + ": %0.2f\n" % coreference_scores[k])
-        html_file.write("======= score (" + k + ")=%0.2f =======\n" % coreference_scores[k])
-        score_file.write(k + ": %0.2f\n" % coreference_scores[k])
-        if k.endswith("f1"):
-            f1+=coreference_scores[k]/4.0
-    avg.append(f1)
+    # coreference_scores=evaluate_coreference(grouth_truth, prediction)
+    # f1=0.0
+    # for k in coreference_scores:
+    #     print(k + ": %0.2f\n" % coreference_scores[k])
+    #     html_file.write("======= score (" + k + ")=%0.2f =======\n" % coreference_scores[k])
+    #     score_file.write(k + ": %0.2f\n" % coreference_scores[k])
+    #     if k.endswith("f1"):
+    #         f1+=coreference_scores[k]/4.0
+    # avg.append(f1)
+
     ## Temporal
     temporal_scores=evaluate(grouth_truth, prediction, "temporal")
     for k in temporal_scores:
@@ -346,6 +341,7 @@ if __name__ == "__main__":
         html_file.write("======= score (" + k + ")=%0.2f =======\n" % temporal_scores[k])
         score_file.write(k + ": %0.2f\n" % temporal_scores[k])
     avg.append(temporal_scores['temporal_f1'])
+
     ## Causal
     causal_scores=evaluate(grouth_truth, prediction, "causal")
     for k in causal_scores:
@@ -353,13 +349,15 @@ if __name__ == "__main__":
         html_file.write("======= score (" + k + ")=%0.2f =======\n" % causal_scores[k])
         score_file.write(k + ": %0.2f\n" % causal_scores[k])
     avg.append(causal_scores['causal_f1'])
+
     ## Subevent
-    subevent_scores=evaluate(grouth_truth, prediction, "subevent")
-    for k in subevent_scores:
-        print(k + ": %0.2f\n" % subevent_scores[k])
-        html_file.write("======= score (" + k + ")=%0.2f =======\n" % subevent_scores[k])
-        score_file.write(k + ": %0.2f\n" % subevent_scores[k])
-    avg.append(subevent_scores['subevent_f1'])
+    # subevent_scores=evaluate(grouth_truth, prediction, "subevent")
+    # for k in subevent_scores:
+    #     print(k + ": %0.2f\n" % subevent_scores[k])
+    #     html_file.write("======= score (" + k + ")=%0.2f =======\n" % subevent_scores[k])
+    #     score_file.write(k + ": %0.2f\n" % subevent_scores[k])
+    # avg.append(subevent_scores['subevent_f1'])
+
     avg_f1=sum(avg)/4.0
     print("overall_f1: %0.2f\n" % avg_f1)
     html_file.write("======= score (overall_f1)=%0.2f =======\n" % avg_f1)

@@ -7,10 +7,10 @@ import torch.nn.functional as F
 import random
 import copy
 
-SUBEVENTREL2ID = {
-    "NONE": 0,
-    "subevent": 1
-}
+# SUBEVENTREL2ID = {
+#     "NONE": 0,
+#     "subevent": 1
+# }
 
 COREFREL2ID = {
     "NONE": 0,
@@ -19,26 +19,20 @@ COREFREL2ID = {
 
 CAUSALREL2ID = {
     "NONE": 0,
-    "PRECONDITION": 1,
-    "CAUSE": 2
+    "因果": 1
 }
 
 TEMPREL2ID = {
-    "BEFORE": 0,
-    "OVERLAP": 1,
-    "CONTAINS": 2,
-    "SIMULTANEOUS": 3,
-    "ENDS-ON": 4,
-    "BEGINS-ON": 5,
-    "NONE": 6,
+    "NONE": 0,
+    "时序": 1
 }
 
-BIDIRECTIONAL_REL = ["SIMULTANEOUS", "BEGINS-ON"]
+BIDIRECTIONAL_REL = ["时序"]
 
 ID2TEMPREL = {v:k for k, v in TEMPREL2ID.items()}
 ID2CAUSALREL = {v:k for k, v in CAUSALREL2ID.items()}
 ID2COREFREL = {v:k for k, v in COREFREL2ID.items()}
-ID2SUBEVENTREL = {v:k for k, v in SUBEVENTREL2ID.items()}
+# ID2SUBEVENTREL = {v:k for k, v in SUBEVENTREL2ID.items()}
 
 
 
@@ -87,20 +81,23 @@ class Document:
             self.eid2mentions[t["id"]] = [t]
 
         if "events" in data:
-            self.temporal_relations = data["temporal_relations"]
+            try:
+                self.temporal_relations = data["temporal_relations"]
+            except:
+                print(data)
             self.causal_relations = data["causal_relations"]
-            self.subevent_relations = {"subevent": data["subevent_relations"]}
+            # self.subevent_relations = {"subevent": data["subevent_relations"]}
             self.coref_relations = self.load_coref_relations(data)
         else:
             self.temporal_relations = {}
             self.causal_relations = {}
-            self.subevent_relations = {}
+            # self.subevent_relations = {}
             self.coref_relations = {}
         self.sort_events()
         self.coref_labels = self.get_coref_labels(data)
         self.temporal_labels = self.get_relation_labels(self.temporal_relations, TEMPREL2ID, ignore_timex=False)
         self.causal_labels = self.get_relation_labels(self.causal_relations, CAUSALREL2ID, ignore_timex=True)
-        self.subevent_labels = self.get_relation_labels(self.subevent_relations, SUBEVENTREL2ID, ignore_timex=True)
+        # self.subevent_labels = self.get_relation_labels(self.subevent_relations, SUBEVENTREL2ID, ignore_timex=True)
 
     def load_coref_relations(self, data):
         relations = {}
@@ -166,7 +163,7 @@ class myDataset(Dataset):
     
     def load_examples(self, data_dir, split):
         self.examples = []
-        with open(os.path.join(data_dir, f"{split}.jsonl"))as f:
+        with open(os.path.join(data_dir, f"{split}.jsonl"), encoding='utf-8')as f:
             lines = f.readlines()
         for line in lines:
             data = json.loads(line.strip())
@@ -196,7 +193,10 @@ class myDataset(Dataset):
                     if i < sp[1][0]:
                         context_ids = self.tokenizer(word[i:sp[1][0]], is_split_into_words=True, add_special_tokens=False)["input_ids"]
                         tmp_input_ids += context_ids
-                    event_ids = self.tokenizer(word[sp[1][0]:sp[1][1]], is_split_into_words=True, add_special_tokens=False)["input_ids"]
+                    try:
+                        event_ids = self.tokenizer(word[sp[1][0]:sp[1][1]], is_split_into_words=True, add_special_tokens=False)["input_ids"]
+                    except:
+                        print(sp)
                     start = len(tmp_input_ids)
                     end = len(tmp_input_ids) + len(event_ids)
                     tmp_event_spans.append((start, end))
@@ -235,7 +235,7 @@ class myDataset(Dataset):
             
             assert event_id == len(spans)
                 
-            tokenized = {"input_ids": input_ids, "attention_mask": None, "event_spans": event_spans, "coref_labels": example.coref_labels, "temporal_labels": example.temporal_labels, "causal_labels": example.causal_labels, "subevent_labels": example.subevent_labels, "events_idx": example.events_idx, "doc_id": example.id}
+            tokenized = {"input_ids": input_ids, "attention_mask": None, "event_spans": event_spans, "coref_labels": example.coref_labels, "temporal_labels": example.temporal_labels, "causal_labels": example.causal_labels, "events_idx": example.events_idx, "doc_id": example.id}
             self.tokenized_samples.append(tokenized)
     
     def to_tensor(self):
@@ -251,7 +251,7 @@ class myDataset(Dataset):
             item["attention_mask"] = torch.LongTensor(attention_mask)
             item["temporal_labels"] = torch.LongTensor(item["temporal_labels"])
             item["causal_labels"] = torch.LongTensor(item["causal_labels"])
-            item["subevent_labels"] = torch.LongTensor(item["subevent_labels"])
+            # item["subevent_labels"] = torch.LongTensor(item["subevent_labels"])
     
     def __getitem__(self, index):
         return self.tokenized_samples[index]
@@ -261,7 +261,7 @@ class myDataset(Dataset):
 
 
 def collator(data):
-    collate_data = {"input_ids": [], "attention_mask": [], "event_spans": [], "splits": [0], "coref_labels": [], "temporal_labels": [],"causal_labels": [], "subevent_labels": [], "events_idx": [], "doc_id": []}
+    collate_data = {"input_ids": [], "attention_mask": [], "event_spans": [], "splits": [0], "coref_labels": [], "temporal_labels": [],"causal_labels": [], "events_idx": [], "doc_id": []}
     for d in data:
         for k in d:
             collate_data[k].append(d[k])
@@ -270,19 +270,19 @@ def collator(data):
         collate_data["splits"].append(collate_data["splits"][-1]+l)
     collate_data["input_ids"] = torch.cat(collate_data["input_ids"])
     collate_data["attention_mask"] = torch.cat(collate_data["attention_mask"])
-    for label_type in ["temporal_labels", "causal_labels", "subevent_labels"]:
+    for label_type in ["temporal_labels", "causal_labels"]:
         max_label_length = max([len(label) for label in collate_data[label_type]])
         collate_data[label_type] = torch.stack([F.pad(label, pad=(0, max_label_length-len(label)), value=-100) for label in collate_data[label_type]])
         collate_data["max_%s_length"%(label_type[:-1])] = max_label_length
     return collate_data
 
-def get_dataloader(tokenizer, split, data_dir="../data/MAVEN_ERE", max_length=128, batch_size=8, shuffle=True, ignore_nonetype=False, sample_rate=None):
+def get_dataloader(tokenizer, split, data_dir="../data/DEIE", max_length=128, batch_size=8, shuffle=True, ignore_nonetype=False, sample_rate=None):
     dataset = myDataset(tokenizer, data_dir, split, max_length=max_length, ignore_nonetype=ignore_nonetype, sample_rate=sample_rate)
     return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, collate_fn=collator)
 
 if __name__ == "__main__":
     from transformers import RobertaTokenizer
-    tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
+    tokenizer = RobertaTokenizer.from_pretrained("../data/MODELS/roberta-base")
     dataloader = get_dataloader(tokenizer, "test", shuffle=False, max_length=256)
     for data in dataloader:
         print(data["input_ids"].size())

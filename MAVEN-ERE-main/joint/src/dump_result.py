@@ -116,7 +116,7 @@ TEMP_REL2ID = {
 
 TEMP_ID2REL = {v:k for k, v in TEMP_REL2ID.items()}
 
-def temporal_dump(input_path, preds, all_results):
+def temporal_dump(input_path, preds, all_results):   # temporal_dump("../data/MAVEN_ERE/test.jsonl", all_preds, dump_results)
     examples = []
     with open(os.path.join(input_path))as f:
         lines = f.readlines()

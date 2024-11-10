@@ -3,10 +3,10 @@ from transformers import AutoConfig, AutoModel, BertConfig, RobertaModel
 import torch
 from .utils import to_cuda, pad_and_stack, to_var
 import torch.nn.functional as F
-from .data import TEMPREL2ID, SUBEVENTREL2ID, CAUSALREL2ID, COREFREL2ID
+from .data import TEMPREL2ID, CAUSALREL2ID, COREFREL2ID
 
 class EventEncoder(nn.Module):
-    def __init__(self, vocab_size, model_name="/data/MODELS/roberta-base", aggr="mean"):
+    def __init__(self, vocab_size, model_name="../data/MODELS/roberta-base", aggr="mean"):
         nn.Module.__init__(self)
         config = AutoConfig.from_pretrained(model_name)
         if isinstance(config, BertConfig):
@@ -115,12 +115,12 @@ class CorefPairScorer(nn.Module):
         return all_probs
 
 class Model(nn.Module):
-    def __init__(self, vocab_size, model_name="/data/MODELS/roberta-base", embed_dim=768, aggr="mean"):
+    def __init__(self, vocab_size, model_name="../data/MODELS/roberta-base", embed_dim=768, aggr="mean"):
         nn.Module.__init__(self)
         self.encoder = EventEncoder(vocab_size, model_name=model_name, aggr=aggr)
         self.temporal_scorer = PairScorer(embed_dim=embed_dim, out_dim=len(TEMPREL2ID))
         self.causal_scorer = PairScorer(embed_dim=embed_dim, out_dim=len(CAUSALREL2ID))
-        self.subevent_scorer = PairScorer(embed_dim=embed_dim, out_dim=len(SUBEVENTREL2ID))
+        # self.subevent_scorer = PairScorer(embed_dim=embed_dim, out_dim=len(SUBEVENTREL2ID))
         self.coref_scorer = CorefPairScorer(embed_dim=embed_dim)
 
 
@@ -128,6 +128,6 @@ class Model(nn.Module):
         output = self.encoder(inputs)
         temporal_output = self.temporal_scorer(output)
         causal_output = self.causal_scorer(output)
-        subevent_output = self.subevent_scorer(output)
+        # subevent_output = self.subevent_scorer(output)
         coref_output = self.coref_scorer(output, inputs["events_idx"])
-        return coref_output, temporal_output, causal_output, subevent_output
+        return coref_output, temporal_output, causal_output
