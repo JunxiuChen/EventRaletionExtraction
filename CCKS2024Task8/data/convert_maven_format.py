@@ -38,11 +38,16 @@ def get_trigger_sent_id(sentences, l, r):
             num += len(s)
 
 # event_type_id = {}
-event_type_id = load_line_data('maven_format_data/event_type_id_add_testa.json')[0]
+event_type_id = load_line_data('maven_format_data/event_type_id_add_testa_add_testb.json')[0]
 id_count = max(event_type_id.values())+1
 
+<<<<<<< HEAD
 # ori_train_data = load_line_data("testb.json")
 ori_train_data = load_line_data("补全测试集GT/有GT的测试数据/testb_with_gt.json")
+=======
+# ori_train_data = load_line_data("train.json")
+ori_train_data = load_line_data("补全测试集GT/有GT的测试数据/testa_with_gt.json")
+>>>>>>> 6dd3055c8a87563ede8995245381515ba341eacd
 all_data = []
 for line in ori_train_data:
     text = line["doc"]
@@ -133,6 +138,7 @@ for line in ori_train_data:
     #         line_dic["causal_relations"]["因果"].append([one_event_id, other_event_id])
     # end
 
+<<<<<<< HEAD
     # start:将带有GT的testa.json作为验证集处理，解除以下代码注释（处理验证数据）
     # line_dic["id"] = line["new-ID"]
     # line_dic["title"] = title
@@ -152,12 +158,32 @@ for line in ori_train_data:
     #         line_dic["temporal_relations"]["时序"].append([one_event_id, other_event_id])
     #     elif relation == "因果":
     #         line_dic["causal_relations"]["因果"].append([one_event_id, other_event_id])
+=======
+    # start:将带有GT的testa.json作为验证集处理，解除以下代码注释
+    line_dic["temporal_relations"] = {"时序": []}
+    line_dic["causal_relations"] = {"因果": []}
+
+    for relation_pair in line["relations"]:
+        one_event_id = relation_pair["one_event"]["id"]
+        other_event_id = relation_pair["other_event"]["id"]
+        relation = relation_pair["relation_type"]
+        if relation == "时序":
+            line_dic["temporal_relations"]["时序"].append([one_event_id, other_event_id])
+        elif relation == "因果":
+            line_dic["causal_relations"]["因果"].append([one_event_id, other_event_id])
+>>>>>>> 6dd3055c8a87563ede8995245381515ba341eacd
     # end
 
     all_data.append(line_dic)
 
 # add_response_to_json('maven_format_data/event_type_id_add_testa_add_testb.json', event_type_id)
+<<<<<<< HEAD
 # save_data_bylines(all_data, 'maven_format_data/valid.jsonl')  # 将testa作为验证集
+=======
+save_data_bylines(all_data, 'maven_format_data/valid.jsonl')  # 将testa作为验证集
+
+# save_data_bylines(all_data, 'maven_format_data/train.jsonl')
+>>>>>>> 6dd3055c8a87563ede8995245381515ba341eacd
 
 # save_data_bylines(all_data, 'maven_format_data/train.jsonl')
 save_data_bylines(all_data, 'maven_format_data/test.jsonl')
